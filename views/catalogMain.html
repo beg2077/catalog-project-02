@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+    <script src="/vendor/jquery/dist/jquery.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h4>Список упражнений</h4>
+      <p><a class="btn btn-warning" href="/">На главную</a></p>
+      <form class="form-horizontal col-xs-6" action="/catalogMain" method="POST" name="input-catalog-form">
+        <div class="row form-inline">
+          <label class="col-xs-3" for="title_name">Название упражнения</label>
+          <input class="form-control col-xs-3" type="text" name="title_name">
+        </div>
+        <div class="row form-inline">
+          <label class="col-xs-3" for="title_id">Индекс упражнения</label>
+          <input class="form-control col-xs-3" type="text" name="title_id">
+        </div>
+        <div class="row form-inline">
+          <button class="btn btn-primary col-xs-3 col-sm-6" type="submit">Сохранить</button>
+        </div>
+      </form>
+    </div>
+    <script>
+      $(document.forms['input-catalog-form']).on('submit', function () {
+      	var form = $(this);
+      	$(":submit", form).button("loading");
+
+      	$.ajax({
+      		url: "/catalogMain",
+      		method: "POST",
+      		data: form.serialize(),
+      		complete: function () {
+      			$(":submit", form).button("reset");
+      		},
+      		statusCode: {
+      			200: function () {
+      				console.log('Ajax');
+      				//$('#inputTable tr:last').append('<tr><td>New</td><td>Idd</td><td>Idd</td></tr>');
+      				// form.html("Вы вошли в сайт").addClass('alert-success');
+      				// window.location.href = "/chat";
+      			},
+      			403: function (jqXHR) {  // метод $.ajax() возвращает объект jqXHR
+      				// var error = JSON.parse(jqXHR.responseText);
+      				// $('.error', form).html(error.message);
+      			}                       // присланные сервером данные будут доступны ...и в jqXHR,
+      		}                           // а именно в его полях responseText
+      	});
+      	return false;
+      });
+    </script>
+  </body>
+</html>

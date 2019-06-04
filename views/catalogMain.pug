@@ -1,0 +1,67 @@
+extends layout
+
+block content
+	.container
+		h4 #{title}
+		p
+			a(href="/" class="btn btn-warning") На главную
+
+		form.form-horizontal(class="col-xs-6" name='output-catalog-form')
+			table(id="inputTable")
+				each item in catalogs
+					tr
+						td= item.title
+						td= item.id
+						td= item._id
+
+		form.form-horizontal(class="col-xs-6" action='/catalogMain' method='POST' name='input-catalog-form')
+			.row.form-inline
+				label(for="title_name" class="col-xs-3") Название упражнения
+				input(class="form-control col-xs-3" type="text" name="title_name")
+			.row.form-inline
+				label(for="title_id" class="col-xs-3") Индекс упражнения
+				input(class="form-control col-xs-3" type="text" name="title_id")
+			.row.form-inline
+				button(class="btn btn-primary col-xs-3 col-sm-6" type="submit" data-loading-text="Запись...") Сохранить
+				//button(class="btn btn-primary" type="button" data-loading-text="Запись...") Сохранить
+
+			// if (message)
+			.status.alert.alert-warning.error(role="alert") #{message}
+
+	script.
+		$(document.forms['input-catalog-form']).on('submit', function () {
+			var form = $(this);
+			//$(':submit', form).button("loading");
+			$('.error', form).html('');
+			$('.btn', form).button('loading');
+
+			$.ajax({
+				url: "/catalogMain",
+				method: "POST",
+				data: form.serialize(),
+				complete: function () {
+					console.log('Ajax2');
+					//$(":submit", form).button("reset");
+				},
+				statusCode: {
+					200: function (data) {
+						$('#inputTable tbody').append('<tr><td>' + data.title + '</td><td>' + data.id + '</td><td>' + data._id + '</td></tr>');
+						var warning = 'Запись в бд выполнена успешно.';
+						$('.alert-warning', form).html(warning);
+						// $('#inputTable tr:last').append('<tr><td>New</td><td>Idd</td><td>Idd</td></tr>');
+						// form.html("Вы вошли в сайт").addClass('alert-success');
+						// window.location.href = "/chat";
+					},
+					403: function (jqXHR) {  // метод $.ajax() возвращает объект jqXHR
+						var error = JSON.parse(jqXHR.responseText);
+						$('.error', form).html(error.message);
+					},                      // присланные сервером данные будут доступны ...и в jqXHR,
+					500: function (jqXHR) {
+						var error = JSON.parse(jqXHR.responseText);
+						// $('.error', form).html(error.message);
+						$('.error', form).html(error);
+					}
+				}                           // а именно в его полях responseText
+			});
+			return false;
+		});
